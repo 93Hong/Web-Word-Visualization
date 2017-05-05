@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        // 현재 있는 리스트의 사이즈
+        var size = <%= allWords.length %>;
+
+        function closeEvent(select) {
+            $(select).click(function() {
+                target = "#candidate_" + $(this).attr('data-id');
+                $(target).remove();
+            })
+        }
+        $(function() {
+            closeEvent('.close_btn');
+
+            $('#word_submit').click(function() {
+                var word = $('#word_input').val();
+                var eword = $('#eword_input').val();
+
+                if (word.trim() == "" || eword.trim() == "")
+                    return;
+
+                $('#word_input').val('');
+                $('#eword_input').val('');
+
+                size++;
+                var tmp_html = "<tr id='candidate_" + size + "'>" +
+                    "<td class='word'>" + word + "</td>" +
+                    "<td class='eword'>" + eword + "</td>" +
+                    "<td><button class='close_btn' data-id='" + size + "'>x</button>" +
+                    "</td></tr>";
+                $('#candidate_list').append(tmp_html);
+                closeEvent("#candidate_" + size + " .close_btn");
+            })
+
+            $('#final_submit').click(function() {
+                var word = [];
+                var eword = [];
+                var k = 0;
+                $('.word').each(function(idx) {
+                    word[k] = $(this).html();
+                    k++;
+                })
+                k = 0;
+                $('.eword').each(function(idx) {
+                    eword[k] = $(this).html();
+                    k++;
+                })
+                $('#final_words').val(word);
+                $('#final_ewords').val(eword);
+            })
+        });
+    </script>
+</head>
+
+<body>
+    <div class="contact contact-new">
+        <div>
+            <table border="1" id="candidate_list">
+                <tr>
+                    <th colspan="2">단어</th>
+                    <th>삭제</th>
+                </tr>
+                <% for(var i=0; i<allWords.length; i++) { %>
+                    <tr id="candidate_<%= i %>">
+                        <td class="word">
+                            <%= allWords[i] %>
+                        </td>
+                        <td class="eword">
+                            <%= englishWords[i] %>
+                        </td>
+                        <td><button class="close_btn" data-id="<%= i %>" value="x">x</button></td>
+                    </tr>
+                    <% } %>
+            </table>
+        </div>
+        </br>
+        <div>
+            <table>
+                <tr>
+                    <th>키워드 (한글)</th>
+                    <th>Keyword (English)</th>
+                </tr>
+                <tr>
+                    <td>
+                        <input id="word_input" type="text" name="word" value="" size="11">
+                    </td>
+                    <td>
+                        <input id="eword_input" type="text" name="eWord" value="" size="18">
+                    </td>
+                    <td>
+                        <button id="word_submit" type="submit">Register</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    </br>
+    <form action="/create" method="post">
+        <input type="hidden" name="allWords" id="final_words" />
+        <input type="hidden" name="englishWords" id="final_ewords" />
+        <a href="/search"><button id="final_submit" type="submit">Submit</button></a>
+    </form>
+</body>
+
+</html>
